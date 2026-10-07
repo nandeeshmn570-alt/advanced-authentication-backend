@@ -1,4 +1,8 @@
 
+/**
+ * Comment controller: handles comments for videos, including creation,
+ * listing, updates, and deletion for the comment API routes.
+ */
 import mongoose from "mongoose"
 import { Comment } from "../models/comment.model.js"
 import { ApiError } from "../utils/ApiError.js"
@@ -102,35 +106,30 @@ const updateComment = asyncHandler(async (req, res) => {
     const { content } = req.body
     const commentId = req.params.commentId
 
-    if (!content) {
+    if (!content || !content.trim()) {
         throw new ApiError(400, "The content required for updation")
     }
 
     if (!commentId) {
         throw new ApiError(400, "CommentId required")
     }
+
     const oldComment = await Comment.findById(commentId)
 
     if (!oldComment) {
         throw new ApiError(404, "No old comment present")
     }
-    if (!(oldComment.owner.toString() == req.user._id.toString())) {
+
+    if (oldComment.owner.toString() !== req.user._id.toString()) {
         throw new ApiError(403, "owner does not match")
     }
 
     oldComment.content = content.trim()
     const response = await oldComment.save()
 
-    if (response.deleteCount !== 1) {
-        throw new ApiError(404, "Error happened in updating comment")
-
-    }
     return res
-        .status(202)
-        .json(new ApiResponse(202, response, "comment updated successfully"))
-
-
-
+        .status(200)
+        .json(new ApiResponse(200, response, "comment updated successfully"))
 })
 
 const deleteComment = asyncHandler(async (req, res) => {

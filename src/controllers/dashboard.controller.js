@@ -1,3 +1,6 @@
+/**
+ * Dashboard controller: returns channel-level stats and owned videos for the dashboard API.
+ */
 import {Video} from "../models/video.model.js"
 import {Subscription} from "../models/subscription.model.js"
 import {Like} from "../models/like.model.js"
@@ -47,8 +50,8 @@ const getChannelVideos = asyncHandler(async (req, res) => {
     // TODO: Get all the videos uploaded by the channel
 
     const { page: pageParam = 1, limit: limitParam = 10 } = req.query
-    const page = Number(pageParam)
-    const limit = Number(limitParam)
+    const page = Number.parseInt(pageParam, 10)
+    const limit = Number.parseInt(limitParam, 10)
 
      if(!Number.isInteger(page) || !Number.isInteger(limit) || page < 1 || limit < 1){
         throw new ApiError(400,"page and limit must be positive")

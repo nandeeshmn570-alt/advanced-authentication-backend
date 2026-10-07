@@ -1,10 +1,14 @@
+/**
+ * Video controller: manages video upload, listing, updates, and publishing
+ * workflows for the media API routes.
+ */
 import mongoose, {isValidObjectId} from "mongoose"
 import {Video} from "../models/video.model.js"
 import {User} from "../models/user.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
-import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import {uploadOncloudinary} from "../utils/cloudinary.js"
 
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
@@ -56,8 +60,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid thumbnail file type")
     }
 
-    const videoUploadResult = await uploadOnCloudinary(videoFile.path)
-    const thumbnailUploadResult = await uploadOnCloudinary(thumbnailFile.path)
+    const videoUploadResult = await uploadOncloudinary(videoFile.path)
+    const thumbnailUploadResult = await uploadOncloudinary(thumbnailFile.path)
 
     if (!videoUploadResult || !thumbnailUploadResult) {
         throw new ApiError(500, "Video upload failed")

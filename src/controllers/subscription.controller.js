@@ -1,3 +1,7 @@
+/**
+ * Subscription controller: toggles channel subscriptions and fetches
+ * subscriber/channel membership details.
+ */
 import mongoose, {isValidObjectId} from "mongoose"
 import {User} from "../models/user.model.js"
 import { Subscription } from "../models/subscription.model.js"
@@ -9,7 +13,7 @@ import {asyncHandler} from "../utils/asyncHandler.js"
 const toggleSubscription = asyncHandler(async (req, res) => {
     const {channelId} = req.params
     const subscriberID = req.user._id
-    if(!isValidObjectId(channelId)){
+    if(!channelId || !isValidObjectId(channelId)){
         throw new ApiError(400,"Invalid channel ID")
     }
     if(subscriberID.toString()===channelId.toString()){

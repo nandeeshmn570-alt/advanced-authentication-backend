@@ -1,3 +1,7 @@
+/**
+ * Like controller: toggles likes for videos, comments, and tweets and lists
+ * liked videos for the authenticated user.
+ */
 import  {isValidObjectId} from "mongoose"
 import {Like} from "../models/like.model.js"
 import {ApiError} from "../utils/ApiError.js"

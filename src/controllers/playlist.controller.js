@@ -1,3 +1,6 @@
+/**
+ * Playlist controller: creates and manages user playlists and playlist content.
+ */
 import mongoose, {isValidObjectId} from "mongoose"
 import {Playlist} from "../models/playlist.model.js"
 import {ApiError} from "../utils/ApiError.js"
@@ -116,18 +119,18 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     if(!playlistId || !isValidObjectId(playlistId)){
         throw new ApiError(400,"playlistId is required and valid")
     }
-    if(!videoId || isValidObjectId(videoId)){
-        throw new ApiError(400,"videoId is must be required and valid ")
+    if(!videoId || !isValidObjectId(videoId)){
+        throw new ApiError(400,"videoId is required and must be valid")
     }
 
     const playlist = await Playlist.findById(playlistId)
 
     if(!playlist){
-        throw(new ApiError(404,"playlist not found"))
+        throw new ApiError(404,"playlist not found")
     }
 
     if(playlist.owner.toString()!==req.user._id.toString()){
-        throw new ApiError(403,"You are mot allowed to access this playlist")
+        throw new ApiError(403,"You are not allowed to access this playlist")
     }
 
     const updatedPlaylist = await Playlist.findByIdAndUpdate(playlistId,{
@@ -136,14 +139,13 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
         }
     },{new:true})
 
-
     if (!updatedPlaylist) {
         throw new ApiError(400, "Failed to remove video from playlist")
     }
 
     return res
           .status(200)
-          .json(new ApiError(200,updatedPlaylist,"video deleted successfully"))
+          .json(new ApiResponse(200, updatedPlaylist, "video removed from playlist successfully"))
 
 })
 

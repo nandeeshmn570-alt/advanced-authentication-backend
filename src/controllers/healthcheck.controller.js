@@ -1,3 +1,6 @@
+/**
+ * Healthcheck controller: simple service availability endpoint used by monitoring.
+ */
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
