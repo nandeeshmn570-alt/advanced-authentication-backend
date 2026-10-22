@@ -271,6 +271,24 @@ const getCurrentUser = asyncHandler(async (req, res) => {
         )
 })
 
+const getWatchHistory = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id).populate({
+        path: "watchHistory",
+        populate: {
+            path: "owner",
+            select: "username fullName avatar"
+        }
+    })
+
+    if (!user) {
+        throw new ApiError(404, "User not found")
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, user.watchHistory, "Watch history fetched successfully"))
+})
+
 const updateAccountDetails = asyncHandler(async (req, res) => {
     const { fullName, email } = req.body
 
@@ -437,6 +455,7 @@ export {
     refreshAccessToken,
     changeCurrentPassword,
     getCurrentUser,
+    getWatchHistory,
     updateAccountDetails,
     updateUserAvatar,  
     updateUserCoverImage,
