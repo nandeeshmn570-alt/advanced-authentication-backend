@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "A complex Backend Project",
   "type": "module",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
-    "test": "node --test"
+    "start": "node src/index.js",
+    "test": "node --test",
+    "test:integration": "node --test tests/integration/database.integration.test.js"
   },
   "keywords": [
     "javascript",
@@ -14,6 +16,9 @@
   ],
   "author": "Nandeesh M N",
   "license": "ISC",
+  "engines": {
+    "node": ">=22"
+  },
   "devDependencies": {
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3"

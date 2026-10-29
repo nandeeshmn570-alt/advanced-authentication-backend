@@ -1,4 +1,3 @@
-
 # Advanced Authentication Backend
 
 A YouTube-inspired backend API for a video hosting platform built with Node.js, Express, MongoDB, and Mongoose. The project focuses on secure user authentication, media uploads, social interactions, and content management features typically found in modern video platforms.
@@ -32,6 +31,7 @@ This backend provides a robust foundation for a video-sharing application with:
 ## Core Features
 
 ### Authentication and user management
+
 - User registration with avatar and cover image upload
 - Login/logout endpoints
 - Refresh token flow for renewed access
@@ -39,6 +39,7 @@ This backend provides a robust foundation for a video-sharing application with:
 - Secure user profile and password handling
 
 ### Video platform features
+
 - Upload videos with thumbnails
 - List and search videos with pagination
 - Fetch individual video details
@@ -47,6 +48,7 @@ This backend provides a robust foundation for a video-sharing application with:
 - Track owner and video metadata
 
 ### Social and engagement features
+
 - Like videos, comments, and tweets
 - Add, update, and delete comments on videos
 - Create and manage playlists
@@ -55,6 +57,7 @@ This backend provides a robust foundation for a video-sharing application with:
 - Dashboard stats for channel activity
 
 ### Media handling
+
 - File validation for uploads
 - Cloudinary integration for storage
 - Support for image and video media processing
@@ -116,21 +119,26 @@ advanced-authentication-backend/
 
 ## Environment Variables
 
-Create a `.env` file in the project root with the following values:
+Copy `.env.example` to `.env` and set values appropriate for your environment:
 
 ```env
 PORT=8000
 CORS_ORIGIN=http://localhost:3000
 MONGODB_URI=mongodb://127.0.0.1:27017
-DB_NAME=advanced-authentication
-ACCESS_TOKEN_SECRET=your_access_token_secret
+ACCESS_TOKEN_SECRET=replace-with-a-long-random-secret
 ACCESS_TOKEN_EXPIRY=1d
-REFRESH_TOKEN_SECRET=your_refresh_token_secret
+REFRESH_TOKEN_SECRET=replace-with-another-long-random-secret
 REFRESH_TOKEN_EXPIRY=10d
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 ```
+
+`DB_NAME` is currently fixed to `videotube` in `src/constants.js`; `MONGODB_URI`
+should be the MongoDB server URI without a database path. In production, use
+separate random token secrets of at least 32 characters, configure all
+Cloudinary credentials, and provide comma-separated, explicit HTTP(S) origins in
+`CORS_ORIGIN`. Never commit `.env` or put production credentials in an image.
 
 ## Installation
 
@@ -141,7 +149,7 @@ CLOUDINARY_API_SECRET=your_api_secret
 npm install
 ```
 
-3. Configure the `.env` file as described above
+3. Copy `.env.example` to `.env` and configure it as described above
 4. Start the development server:
 
 ```bash
@@ -150,29 +158,103 @@ npm run dev
 
 The app will start on the configured port, defaulting to `8000`.
 
+## Deployment
+
+Build and run the production container:
+
+```bash
+docker build -t advanced-authentication-backend .
+docker run --name advanced-authentication-backend \
+  --env-file .env \
+  -p 8000:8000 \
+  advanced-authentication-backend
+```
+
+Provide a production `.env` securely at deployment time. The server validates
+required configuration before connecting to MongoDB, uses a non-root container
+user, and exposes `GET /api/v1/healthcheck/` for health probes. The CI workflow
+runs unit/API tests, MongoDB integration tests, and a Docker image build. The
+`MONGODB_URI` must resolve to a database reachable from the container.
+
+## Testing
+
+Run the automated test suite with:
+
+```bash
+npm test
+```
+
+The suite covers authentication, comment APIs, feature-controller validation,
+and consistent HTTP error responses. Most controller tests use mocked model
+calls. MongoDB persistence and index integration tests use a separate database
+and are skipped locally unless `TEST_MONGODB_URI` points to a dedicated
+database whose name ends in `_test` or `-test`:
+
+```bash
+$env:TEST_MONGODB_URI="mongodb://127.0.0.1:27017/videotube_test"
+npm run test:integration
+```
+
+The integration tests drop only that explicitly configured test database after
+the suite completes. GitHub Actions starts an isolated MongoDB service and runs
+these tests on pushes and pull requests.
+
 ## API Highlights
 
 ### User endpoints
+
 - `POST /api/v1/users/register`
 - `POST /api/v1/users/login`
 - `POST /api/v1/users/logout`
 - `POST /api/v1/users/refresh-token`
+- `GET /api/v1/users/current-user`
+- `PATCH /api/v1/users/change-password`
+- `PATCH /api/v1/users/update-account`
+- `PATCH /api/v1/users/avatar`
+- `PATCH /api/v1/users/cover-image`
+- `GET /api/v1/users/channel/:username`
+- `GET /api/v1/users/history`
 
 ### Video endpoints
+
 - `POST /api/v1/videos/upload`
 - `GET /api/v1/videos/`
 - `GET /api/v1/videos/:videoId`
 - `PATCH /api/v1/videos/:videoId`
 - `DELETE /api/v1/videos/:videoId`
+- `PATCH /api/v1/videos/:videoId/publish`
 
 ### Additional modules
+
 - `GET /api/v1/healthcheck`
 - `GET /api/v1/comments/:videoId`
 - `POST /api/v1/comments/:videoId`
+- `PATCH /api/v1/comments/c/:commentId`
+- `DELETE /api/v1/comments/c/:commentId`
 - `POST /api/v1/likes/videos/:videoId`
+- `POST /api/v1/likes/comments/:commentId`
+- `POST /api/v1/likes/tweets/:tweetId`
+- `GET /api/v1/likes/videos`
 - `POST /api/v1/subscription/:channelId`
+- `GET /api/v1/subscription/channel/:channelId/subscribers`
+- `GET /api/v1/subscription/user/:subscriberId/channels`
+- `POST /api/v1/tweets/create-tweet`
+- `GET /api/v1/tweets/user-tweets`
+- `PATCH /api/v1/tweets/:tweetId`
+- `DELETE /api/v1/tweets/:tweetId`
 - `POST /api/v1/playlists/create-playlist`
+- `GET /api/v1/playlists/user/:userId`
+- `GET /api/v1/playlists/:playlistId`
+- `PATCH /api/v1/playlists/:playlistId`
+- `DELETE /api/v1/playlists/:playlistId`
+- `POST /api/v1/playlists/:playlistId/videos/:videoId`
+- `DELETE /api/v1/playlists/:playlistId/videos/:videoId`
+- `GET /api/v1/dashboard/videos`
 - `GET /api/v1/dashboard/stats`
+
+All routes other than health check are currently protected by JWT middleware
+where configured. Media uploads accept image/video MIME types and are limited to
+50 MB per file.
 
 ## Notes
 

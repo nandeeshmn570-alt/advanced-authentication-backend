@@ -13,7 +13,6 @@ import { Tweet } from "../models/tweet.model.js";
 
 const toggleVideoLike = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  //TODO: toggle like on video
 
   if (!videoId || !isValidObjectId(videoId)) {
     throw new ApiError(400, "videoId is required and should be valid");
@@ -52,7 +51,6 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
 
 const toggleCommentLike = asyncHandler(async (req, res) => {
   const { commentId } = req.params;
-  //TODO: toggle like on comment
 
   if (!commentId || !isValidObjectId(commentId)) {
     throw new ApiError(400, "commentId is required and should be valid");
@@ -91,7 +89,6 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
 
 const toggleTweetLike = asyncHandler(async (req, res) => {
   const { tweetId } = req.params;
-  //TODO: toggle like on tweet
   if (!tweetId || !isValidObjectId(tweetId)) {
     throw new ApiError(400, "tweetId is required and should be valid");
   }

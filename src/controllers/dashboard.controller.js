@@ -43,8 +43,6 @@ const getChannelStats = asyncHandler(async (req, res) => {
 });
 
 const getChannelVideos = asyncHandler(async (req, res) => {
-  // TODO: Get all the videos uploaded by the channel
-
   const { page: pageParam = 1, limit: limitParam = 10 } = req.query;
   const page = Number(pageParam);
   const limit = Number(limitParam);
@@ -53,9 +51,13 @@ const getChannelVideos = asyncHandler(async (req, res) => {
     !Number.isInteger(page) ||
     !Number.isInteger(limit) ||
     page < 1 ||
-    limit < 1
+    limit < 1 ||
+    limit > 100
   ) {
-    throw new ApiError(400, "page and limit must be positive");
+    throw new ApiError(
+      400,
+      "page must be positive and limit must be between 1 and 100"
+    );
   }
   const skip = (page - 1) * limit;
   const videos = await Video.find({
@@ -65,12 +67,22 @@ const getChannelVideos = asyncHandler(async (req, res) => {
     .limit(limit)
     .skip(skip);
 
-  if (videos.length < 1) {
-    throw new ApiError(404, "No videos found");
-  }
-  return res
-    .status(200)
-    .json(new ApiResponse(200, videos, "videos of owner fetched successfully"));
+  const total = await Video.countDocuments({ owner: req.user._id });
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        videos,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      },
+      "Channel videos fetched successfully"
+    )
+  );
 });
 
 export { getChannelStats, getChannelVideos };

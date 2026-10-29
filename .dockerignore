@@ -1,0 +1,7 @@
+.env
+.git
+.github
+node_modules
+public/temp
+tests
+*.log
